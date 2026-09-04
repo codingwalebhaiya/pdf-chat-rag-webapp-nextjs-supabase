@@ -90,6 +90,7 @@ Streaming Answer + Sources
 * Supabase Auth
 * Supabase PostgreSQL
 * Supabase Storage
+* Drizzle ORM
 * Pinecone
 
 **AI**
@@ -107,45 +108,13 @@ Streaming Answer + Sources
 * Sentry
 * Upstash Redis
 
-## 📁 Project Structure
-
-```text
-pdf-chat-ai/
-├── app/
-│   ├── (marketing)/
-│   ├── (auth)/
-│   ├── dashboard/
-│   ├── c/
-│   └── api/
-│
-├── components/
-│   ├── chat/
-│   ├── pdf/
-│   ├── dashboard/
-│   └── ui/
-│
-├── lib/
-│   ├── supabase/
-│   ├── pinecone/
-│   ├── ai/
-│   ├── rag/
-│   ├── stripe/
-│   └── rate-limit/
-│
-├── inngest/
-├── actions/
-├── types/
-└── supabase/
-    └── migrations/
-```
-
 ## 🚀 Getting Started
 
 ### 1. Clone
 
 ```bash
 git clone https://github.com/codingwalebhaiya/pdf-chat-rag-webapp-nextjs-supabase.git
-cd pdf-chat-ai
+cd pdf-chat-rag-webapp-nextjs-supabase
 ```
 
 ### 2. Install dependencies
