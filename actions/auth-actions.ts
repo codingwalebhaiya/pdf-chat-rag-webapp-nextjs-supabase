@@ -4,6 +4,10 @@ import { signinSchema, signupSchema } from '@/lib/validations/auth'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createServer } from '@/lib/supabase/server'
+import { db } from "@/lib/db"
+import { eq } from "drizzle-orm";
+import { profiles } from '@/lib/db/schema'
+
 
 export async function signinWithEmailPassword(formData: {
     email: string;
@@ -83,7 +87,7 @@ export async function signupWithEmailPassword(formData: {
         }
     }
 
-     revalidatePath("/", "layout");
+    revalidatePath("/", "layout");
     redirect("/signin");
 }
 
@@ -99,6 +103,31 @@ export async function logout() {
     // Redirect to home page ("/") after revalidating the path 
     revalidatePath("/", "layout");
     redirect('/signin')
+}
+
+
+// Get current user with profile (server-side)
+export async function getCurrentUserWithProfile() {
+    const supabase = await createServer();
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return null;
+  }
+
+    try {
+        const profile = await db.query.profiles.findFirst({
+            where: eq(profiles.userId, user.id),
+        });
+
+        return profile;
+    } catch (error) {
+        console.error("Error fetching profile:", error);
+        return null;
+    }
 }
 
 

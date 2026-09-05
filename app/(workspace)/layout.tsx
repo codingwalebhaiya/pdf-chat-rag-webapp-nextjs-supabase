@@ -1,6 +1,6 @@
  
 
-import Sidebar from "@/components/layout/Sidebar"
+import {Sidebar} from "@/components/layout/Sidebar"
 
 export default function HomeLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -11,4 +11,4 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
             </div>
         </div>
     );
-}
+} 
