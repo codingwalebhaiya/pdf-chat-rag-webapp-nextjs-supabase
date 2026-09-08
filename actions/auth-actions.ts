@@ -39,13 +39,6 @@ export async function signinWithEmailPassword(formData: {
         }
     }
 
-    // Profile already exists due to trigger
-    // Just redirect to home page ("/") after revalidating the path
-    // what is "layout" in revalidatePath("/", "layout")?
-    // "layout" is the type of path to revalidate. It can be "page" or "layout".
-    // "layout" means revalidate the layout of the path.
-    // "page" means revalidate the page of the path.
-
     revalidatePath("/", "layout");
     redirect("/");
 }
@@ -68,8 +61,7 @@ export async function signupWithEmailPassword(formData: {
 
     const supabase = await createServer();
 
-    // Sign up with Supabase auth
-    // Profile will be automatically created by database trigger
+
     const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -100,27 +92,26 @@ export async function logout() {
         }
     }
 
-    // Redirect to home page ("/") after revalidating the path 
     revalidatePath("/", "layout");
-    redirect('/signin')
+
+    return {
+        success:true
+    }
 }
 
 
-// Get current user with profile (server-side)
-export async function getCurrentUserWithProfile() {
+export async function userProfile() {
     const supabase = await createServer();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-  
-  if (!user) {
-    return null;
-  }
+
+    if (!user) {
+        return null
+    }
 
     try {
         const profile = await db.query.profiles.findFirst({
-            where: eq(profiles.userId, user.id),
+            where: eq(profiles.userId, user.id)
         });
 
         return profile;

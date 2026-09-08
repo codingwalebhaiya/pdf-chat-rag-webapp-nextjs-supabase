@@ -70,9 +70,4 @@ export const config = {
     matcher: [
         '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ]
-
-    //Match ONLY specific paths(if you want minimal middleware)
-    // export const config = {
-    //     matcher: ['/', '/c/:path*', '/signin', '/signup'],
-    // }
 }

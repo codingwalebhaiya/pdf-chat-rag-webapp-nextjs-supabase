@@ -2,6 +2,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+// Note - Rule of thumb: If you see "use client" at the top of the file → use createClient(). If you see "use server" or no directive → use createServer().
+
 //  createServerClient -> Use: Creates a Supabase client for Server Components, Server Actions, and Route Handlers that run on the server.
 // How it works: It safely reads incoming request data to know if a user is logged in.
 

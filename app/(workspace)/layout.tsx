@@ -1,14 +1,12 @@
- 
+import { AppSidebar } from "@/components/layout/AppSidebar"
 
-import {Sidebar} from "@/components/layout/Sidebar"
-
-export default function HomeLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <div className="flex h-screen">
-            <Sidebar />
-            <div className="flex-1 overflow-hidden">
-                {children}
-            </div>
-        </div>
-    );
-} 
+export default function MainLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex h-screen w-full overflow-hidden bg-background">
+      <AppSidebar />
+      <main className="relative flex-1 overflow-y-auto h-full">
+        {children}
+      </main>
+    </div>
+  )
+}
