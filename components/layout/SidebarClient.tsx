@@ -30,7 +30,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import { PDFUploadModal } from "@/components/home/PDFUploadModal"
 import { logout } from "@/actions/auth-actions"
 import { toast } from "sonner"
@@ -102,6 +104,7 @@ export function SidebarClient({ profile, conversations }: SidebarClientProps) {
   const { theme, setTheme } = useTheme()
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false)
 
   // Initialize from localStorage on client mount
   useEffect(() => {
@@ -354,7 +357,7 @@ export function SidebarClient({ profile, conversations }: SidebarClientProps) {
                   className="group flex w-full items-center gap-2.5 rounded-xl p-1.5 hover:bg-sidebar-accent text-sidebar-foreground transition-colors text-left outline-none cursor-pointer"
                 >
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold">
-                    {profile?.avatarUrl ? (
+                    {profile?.avatarUrl ? ( 
                       <img
                         src={profile.avatarUrl}
                         alt={profile.name || "User"}
@@ -433,12 +436,12 @@ export function SidebarClient({ profile, conversations }: SidebarClientProps) {
 
                 {/* Bottom: Logout */}
                 <DropdownMenuItem
-                  onClick={handleLogout}
+                  onClick={() => setIsLogoutConfirmOpen(true)}
                   disabled={isPending}
                   className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-destructive focus:text-destructive cursor-pointer hover:bg-destructive/10 focus:bg-destructive/10 transition-colors"
                 >
-                  <LogOut className={cn("h-4 w-4 text-destructive", isPending && "animate-pulse")} />
-                  <span>{isPending ? "Logging out..." : "Log out"}</span>
+                  <LogOut className="h-4 w-4 text-destructive" />
+                  <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -518,12 +521,12 @@ export function SidebarClient({ profile, conversations }: SidebarClientProps) {
 
                 {/* Bottom: Logout */}
                 <DropdownMenuItem
-                  onClick={handleLogout}
+                  onClick={() => setIsLogoutConfirmOpen(true)}
                   disabled={isPending}
                   className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-destructive focus:text-destructive cursor-pointer hover:bg-destructive/10 focus:bg-destructive/10 transition-colors"
                 >
-                  <LogOut className={cn("h-4 w-4 text-destructive", isPending && "animate-pulse")} />
-                  <span>{isPending ? "Logging out..." : "Log out"}</span>
+                  <LogOut className="h-4 w-4 text-destructive" />
+                  <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -617,6 +620,69 @@ export function SidebarClient({ profile, conversations }: SidebarClientProps) {
               </div>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Logout Confirmation Modal */}
+      <Dialog open={isLogoutConfirmOpen} onOpenChange={setIsLogoutConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader className="items-center text-center sm:text-center">
+            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <LogOut className="h-6 w-6" />
+            </div>
+            <DialogTitle className="text-lg font-bold sm:text-xl">
+              Are you sure you want to log out?
+            </DialogTitle>
+            <DialogDescription className="text-center text-xs sm:text-sm">
+              You will need to sign in again to access your conversations and documents.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* User Profile Info Card */}
+          <div className="my-2 flex items-center gap-3 rounded-xl border border-border/70 bg-muted/40 p-3.5">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold ring-2 ring-primary/20">
+              {profile?.avatarUrl ? (
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.name || "User"}
+                  className="h-11 w-11 rounded-full object-cover"
+                />
+              ) : (
+                initials
+              )}
+            </div>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="truncate text-sm font-semibold text-foreground">
+                {profile?.name || "Satyam Pandey"}
+              </p>
+              <p className="truncate text-xs text-muted-foreground">
+                {profile?.email || "moneymind144@gmail.com"}
+              </p>
+            </div>
+          </div>
+
+          {/* Actions: Log out / Cancel */}
+          <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsLogoutConfirmOpen(false)}
+              disabled={isPending}
+              className="cursor-pointer"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleLogout}
+              disabled={isPending}
+              className="gap-2 cursor-pointer"
+            >
+              <LogOut className={cn("h-4 w-4", isPending && "animate-spin")} />
+              {isPending ? "Logging out..." : "Log out"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </TooltipProvider>
