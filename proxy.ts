@@ -1,33 +1,11 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'  
+import { NextResponse, type NextRequest } from 'next/server'
+import { createServer } from '@/actions/auth-actions'
 
 export default async function proxy(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
         request,
     })
-
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                getAll() {
-                    return request.cookies.getAll()
-                },
-                setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value }) =>
-                        request.cookies.set(name, value)
-                    )
-                    supabaseResponse = NextResponse.next({
-                        request,
-                    })
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        supabaseResponse.cookies.set(name, value, options)
-                    )
-                },
-            },
-        }
-    )
+    const supabase = await createServer();
 
     // Refresh session if expired - required for Server Components
     const {
@@ -45,7 +23,7 @@ export default async function proxy(request: NextRequest) {
     // If no user and trying to access protected route → redirect to login
     if (!user && isProtectedRoute) {
         const redirectUrl = new URL('/signin', request.url)
-       // redirectUrl.searchParams.set('redirectedFrom', url.pathname)
+        // redirectUrl.searchParams.set('redirectedFrom', url.pathname)
         return NextResponse.redirect(redirectUrl)
     }
 
@@ -68,6 +46,6 @@ export const config = {
      * - api routes (if you have public APIs)
      */
     matcher: [
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+        '/((?!api/inngest|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ]
 }

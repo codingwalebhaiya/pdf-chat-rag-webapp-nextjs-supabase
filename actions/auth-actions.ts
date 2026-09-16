@@ -3,11 +3,41 @@
 import { signinSchema, signupSchema } from '@/lib/validations/auth'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { createServer } from '@/lib/supabase/server'
 import { db } from "@/lib/db"
 import { eq } from "drizzle-orm";
 import { profiles } from '@/lib/db/schema'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
+
+//Cookies can only be modified in a Server Action or Route Handler. 
+// Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+
+export async function createServer() {
+    const cookieStore = await cookies()
+
+    return createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+        {
+            cookies: {
+                getAll() {
+                    return cookieStore.getAll()
+                },
+                setAll(cookiesToSet) {
+                    try {
+                        cookiesToSet.forEach(({ name, value, options }) => {
+                            cookieStore.set(name, value, options)
+                        })
+                    } catch (error) {
+                        console.log("Error setting cookies", error);
+
+                    }
+                },
+            }
+        }
+    )
+}
 
 export async function signinWithEmailPassword(formData: {
     email: string;
@@ -26,7 +56,6 @@ export async function signinWithEmailPassword(formData: {
     }
 
     const supabase = await createServer();
-
     const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -41,6 +70,7 @@ export async function signinWithEmailPassword(formData: {
 
     revalidatePath("/", "layout");
     redirect("/");
+
 }
 
 export async function signupWithEmailPassword(formData: {
@@ -60,8 +90,6 @@ export async function signupWithEmailPassword(formData: {
     }
 
     const supabase = await createServer();
-
-
     const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -93,9 +121,8 @@ export async function logout() {
     }
 
     revalidatePath("/", "layout");
-
     return {
-        success:true
+        success: true
     }
 }
 
@@ -103,7 +130,6 @@ export async function logout() {
 export async function userProfile() {
     const supabase = await createServer();
     const { data: { user } } = await supabase.auth.getUser();
-
 
     if (!user) {
         return null
@@ -120,9 +146,3 @@ export async function userProfile() {
         return null;
     }
 }
-
-
-// NOTE :  revalidatePath allows you to purge cached data on-demand for a specific path. It is primarily used within Server Actions or Route Handlers to update static pages or components immediately after a data mutation occurs (like submitting a form or fixing a typo)
-
-//import { revalidatePath } from 'next/cache'
-//revalidatePath(path: string, type ?: 'page' | 'layout')

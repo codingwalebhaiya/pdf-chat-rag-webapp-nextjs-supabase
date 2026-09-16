@@ -2,9 +2,10 @@
 
 import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { Upload, X, FileText, Loader2 } from "lucide-react"
+import { Upload, X, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface PDFUploadModalProps {
   isOpen: boolean
@@ -14,63 +15,83 @@ interface PDFUploadModalProps {
 export function PDFUploadModal({ isOpen, onClose }: PDFUploadModalProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
   const router = useRouter()
   const supabase = createClient()
 
   const handleFileUpload = useCallback(
     async (file: File) => {
       if (!file || file.type !== "application/pdf") {
-        alert("Please upload a PDF file")
+        toast.error("Please upload a PDF file")
         return
       }
 
-      setIsUploading(true)
-      setUploadProgress(0)
-
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Maximum file size is 5MB");
+        return;
+      }
+      setIsUploading(true);
       try {
+        const supabase = createClient();
         const {
           data: { user },
-        } = await supabase.auth.getUser()
-        if (!user) throw new Error("Not authenticated")
+          error: userError,
+        } = await supabase.auth.getUser();
 
-        // Create conversation record
-        const { data: conversation, error: conversationError } = await supabase
-          .from("conversations")
-          .insert({
-            user_id: user.id,
-            title: file.name.replace(".pdf", ""),
-          })
-          .select()
-          .single()
 
-        if (conversationError) throw conversationError
+        if (userError || !user) {
+          throw new Error("You must be logged in");
+        }
 
-        // Upload PDF to Supabase Storage
-        const filePath = `${user.id}/${conversation.id}/${file.name}`
+        const userId = user.id;
+        const documentId = crypto.randomUUID();
+        const storagePath = `${userId}/${documentId}/${file.name}`;
+        const backetName = "pdfs"
+
         const { error: uploadError } = await supabase.storage
-          .from("pdfs")
-          .upload(filePath, file, {
-            onUploadProgress: (progress: any) => {
-              const percent = (progress.loaded / progress.total) * 100
-              setUploadProgress(percent)
-            },
-          } as any)
+          .from(backetName)
+          .upload(storagePath, file, {
+            contentType: "application/pdf",
+            upsert: false,
+            cacheControl: '3600'
+          });
 
-        if (uploadError) throw uploadError
+        if (uploadError) throw uploadError;
 
-        // Navigate to conversation
-        router.push(`/c/${conversation.id}`)
-        onClose()
-      } catch (error) {
-        console.error("Upload error:", error)
-        alert("Failed to upload PDF")
+
+        const res = await fetch('/api/chat/new-chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            documentId,
+            fileName: file.name,
+            userId,
+            mimeType: file.type,
+            fileSize: file.size,
+            storagePath,
+            backetName
+          }),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || 'Failed to create new chat');
+        }
+        toast.success("Uploaded! Processing PDF…");
+        onClose();
+        const { chatId } = await res.json();
+        router.push(`/c/${chatId}`);
+
+
+      } catch (err: any) {
+        toast.error(err.message)
+
       } finally {
         setIsUploading(false)
-        setIsDragging(false)
       }
     },
-    [supabase, router, onClose]
+    [supabase]
   )
 
   const handleDrop = useCallback(
@@ -138,7 +159,7 @@ export function PDFUploadModal({ isOpen, onClose }: PDFUploadModalProps) {
             <div className="text-center">
               <Loader2 className="mx-auto mb-2 h-8 w-8 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">
-                Uploading... {Math.round(uploadProgress)}%
+                {/* Uploading... {Math.round(uploadProgress)}% */}
               </p>
             </div>
           ) : (
