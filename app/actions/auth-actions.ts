@@ -6,44 +6,15 @@ import { revalidatePath } from 'next/cache'
 import { db } from "@/lib/db"
 import { eq } from "drizzle-orm";
 import { profiles } from '@/lib/db/schema'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from "@/lib/supabase/server"
 
-
-//Cookies can only be modified in a Server Action or Route Handler. 
-// Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
-
-export async function createServer() {
-    const cookieStore = await cookies()
-
-    return createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-        {
-            cookies: {
-                getAll() {
-                    return cookieStore.getAll()
-                },
-                setAll(cookiesToSet) {
-                    try {
-                        cookiesToSet.forEach(({ name, value, options }) => {
-                            cookieStore.set(name, value, options)
-                        })
-                    } catch (error) {
-                        console.log("Error setting cookies", error);
-
-                    }
-                },
-            }
-        }
-    )
-}
 
 export async function signinWithEmailPassword(formData: {
     email: string;
     password: string;
 }) {
     const { email, password } = formData;
+
 
     // Validate input
     const validation = signinSchema.safeParse({ email, password })
@@ -55,8 +26,8 @@ export async function signinWithEmailPassword(formData: {
         }
     }
 
-    const supabase = await createServer();
-    const { error } = await supabase.auth.signInWithPassword({
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
     })
@@ -65,6 +36,12 @@ export async function signinWithEmailPassword(formData: {
         return {
             error: error.message
 
+        }
+    }
+
+    if (!data.user) {
+        return {
+            error: "User not found",
         }
     }
 
@@ -79,6 +56,10 @@ export async function signupWithEmailPassword(formData: {
     password: string;
 }) {
     const { name, email, password } = formData;
+    if (!name || !email || !password) {
+        return { error: 'All fields are required.' };
+    }
+
     // Validate input
     const validation = signupSchema.safeParse({ name, email, password })
 
@@ -89,8 +70,9 @@ export async function signupWithEmailPassword(formData: {
         }
     }
 
-    const supabase = await createServer();
-    const { error } = await supabase.auth.signUp({
+    // Sign up using Supabase Auth
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -107,12 +89,18 @@ export async function signupWithEmailPassword(formData: {
         }
     }
 
+    if (!data.user) {
+        return {
+            error: "User not found",
+        }
+    }
+
     revalidatePath("/", "layout");
     redirect("/signin");
 }
 
 export async function logout() {
-    const supabase = await createServer();
+    const supabase = await createClient();
     const { error } = await supabase.auth.signOut();
     if (error) {
         return {
@@ -121,6 +109,7 @@ export async function logout() {
     }
 
     revalidatePath("/", "layout");
+
     return {
         success: true
     }
@@ -128,7 +117,7 @@ export async function logout() {
 
 
 export async function userProfile() {
-    const supabase = await createServer();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {

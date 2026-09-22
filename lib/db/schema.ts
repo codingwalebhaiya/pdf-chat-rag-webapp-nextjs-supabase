@@ -10,6 +10,8 @@ import {
     index
 } from "drizzle-orm/pg-core";
 
+//Supabase Auth stores users in its special auth schema,
+//  and application tables can reference those users.
 export const profiles = pgTable("profiles", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: uuid("user_id").notNull().unique(), // unique ensures 1:1 relationship
@@ -62,7 +64,7 @@ export const messages = pgTable("messages", {
     chatId: uuid("chat_id").references(() => chats.id, { onDelete: "cascade" }).notNull(),
     role: varchar("role", { enum: ["user", "assistant"] }).notNull(), // 'user' or 'ai'
     content: text("content").notNull(),
-    citations: jsonb("citations").$type<{ pageNumber: number; score: number; snippet: string }[]>(),
+    citations: jsonb("citations").$type<{ pageNumber: number; fileName: string }[]>(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 },

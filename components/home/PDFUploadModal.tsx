@@ -29,69 +29,76 @@ export function PDFUploadModal({ isOpen, onClose }: PDFUploadModalProps) {
         toast.error("Maximum file size is 5MB");
         return;
       }
+
       setIsUploading(true);
+      const toastId = toast.loading("Preparing upload...");
+
       try {
-        const supabase = createClient();
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
 
-
-        if (userError || !user) {
-          throw new Error("You must be logged in");
-        }
-
-        const userId = user.id;
-        const documentId = crypto.randomUUID();
-        const storagePath = `${userId}/${documentId}/${file.name}`;
-        const backetName = "pdfs"
-
-        const { error: uploadError } = await supabase.storage
-          .from(backetName)
-          .upload(storagePath, file, {
-            contentType: "application/pdf",
-            upsert: false,
-            cacheControl: '3600'
-          });
-
-        if (uploadError) throw uploadError;
-
-
-        const res = await fetch('/api/chat/new-chat', {
-          method: 'POST',
+        // 1. Request signed upload URL and create chat/document metadata
+        const newChatRes = await fetch(`${baseUrl}/api/chats/new-chat`, {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            documentId,
             fileName: file.name,
-            userId,
-            mimeType: file.type,
+            mimeType: file.type || "application/pdf",
             fileSize: file.size,
-            storagePath,
-            backetName
           }),
         });
 
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || 'Failed to create new chat');
+        if (!newChatRes.ok) {
+          const errorData = await newChatRes.json().catch(() => ({}));
+          throw new Error(errorData.error || "Failed to initialize upload");
         }
-        toast.success("Uploaded! Processing PDF…");
+
+        const { chatId, documentId, token, path } = await newChatRes.json();
+
+        // 2. Upload file directly to Supabase Storage via signed upload URL
+        toast.loading("Uploading PDF to storage...", { id: toastId });
+
+        const { error: uploadError } = await supabase.storage
+          .from("pdfs")
+          .uploadToSignedUrl(path, token, file, {
+            contentType: file.type || "application/pdf",
+          });
+
+        if (uploadError) {
+          throw new Error(`Upload to storage failed: ${uploadError.message}`);
+        }
+
+        // 3. Trigger background RAG ingestion pipeline
+        toast.loading("Starting RAG ingestion in background...", { id: toastId });
+
+        const bgRes = await fetch(`${baseUrl}/api/chats/background-process`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            documentId,
+            chatId,
+          }),
+        });
+
+        if (!bgRes.ok) {
+          const bgError = await bgRes.json().catch(() => ({}));
+          console.warn("Background process trigger warning:", bgError);
+        }
+
+        toast.success("Uploaded! Opening chat workspace...", { id: toastId });
         onClose();
-        const { chatId } = await res.json();
         router.push(`/c/${chatId}`);
-
-
       } catch (err: any) {
-        toast.error(err.message)
-
+        console.error("Upload error:", err);
+        toast.error(err.message || "Failed to upload file", { id: toastId });
       } finally {
-        setIsUploading(false)
+        setIsUploading(false);
       }
     },
-    [supabase]
+    [supabase, router, onClose]
   )
 
   const handleDrop = useCallback(
