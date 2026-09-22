@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import { logout } from "@/actions/auth-actions"
+import { logout } from "@/app/actions/auth-actions"
 
 export default function LogoutButton() {
   const [loading, setLoading] = useState(false)
@@ -11,7 +11,7 @@ export default function LogoutButton() {
     setLoading(true)
     const result = await logout();
 
-    if(result?.error){
+    if (result?.error) {
       setLoading(false)
       toast.error(result.error)
       return
