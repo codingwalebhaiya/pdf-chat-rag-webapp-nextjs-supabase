@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
-import {signinWithEmailPassword} from "@/actions/auth-actions"
+import { signinWithEmailPassword } from "@/app/actions/auth-actions"
 
 export default function SigninForm() {
   const [isLoading, setIsLoading] = useState(false)

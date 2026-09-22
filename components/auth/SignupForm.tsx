@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
-import { signupWithEmailPassword } from "@/actions/auth-actions"
+import { signupWithEmailPassword } from "@/app/actions/auth-actions"
 
 export default function SignupForm() {
   const [isLoading, setIsLoading] = useState(false)
@@ -35,18 +35,18 @@ export default function SignupForm() {
   const onSubmit = async (data: SignupInput) => {
     setIsLoading(true)
     setError(null)
-   
-      const result = await signupWithEmailPassword(data)
 
-      if (result?.error) {
-        setIsLoading(false)
-        setError(result.error)
-        toast.error(result.error)
-        return
-      }
+    const result = await signupWithEmailPassword(data)
+
+    if (result?.error) {
       setIsLoading(false)
-      toast.success("Account created successfully")
-    
+      setError(result.error)
+      toast.error(result.error)
+      return
+    }
+    setIsLoading(false)
+    toast.success("Account created successfully")
+
   }
 
   return (

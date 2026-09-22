@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { PDFUploadModal } from "@/components/home/PDFUploadModal"
-import { logout } from "@/actions/auth-actions"
+import { logout } from "@/app/actions/auth-actions"
 import { toast } from "sonner"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn, getInitials } from "@/lib/utils"
@@ -45,8 +45,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-interface IConversation {
+
+interface IChat {
   id: string
+  userId: string
+  documentId: string
   title: string
   createdAt: Date
   updatedAt: Date
@@ -64,7 +67,7 @@ interface IProfile {
 
 interface SidebarClientProps {
   profile: IProfile | null | undefined
-  conversations: IConversation[]
+  chats: IChat[] | null
 }
 
 function ActionTooltip({
@@ -93,7 +96,7 @@ function ActionTooltip({
   )
 }
 
-export function SidebarClient({ profile, conversations }: SidebarClientProps) {
+export function SidebarClient({ profile, chats }: SidebarClientProps) {
   const router = useRouter()
   const pathname = usePathname()
   const isMobile = useIsMobile()
@@ -292,23 +295,23 @@ export function SidebarClient({ profile, conversations }: SidebarClientProps) {
           )}
         </div>
 
-        {/* Conversation List */}
+        {/* chats List */}
         <div className="flex-1 overflow-y-auto px-2 py-1">
           {isExpanded ? (
             <div className="space-y-0.5">
-              {conversations.length === 0 ? (
+              {chats?.length === 0 ? (
                 <div className="py-8 text-center text-xs text-muted-foreground">
-                  No conversations yet
+                  No chats yet
                 </div>
               ) : (
-                conversations.map((conv) => {
-                  const isActive = pathname === `/c/${conv.id}`
+                chats?.map((chat) => {
+                  const isActive = pathname === `/c/${chat.id}`
                   return (
                     <button
-                      key={conv.id}
+                      key={chat.id}
                       onClick={() => {
                         if (isMobile) setIsExpanded(false)
-                        router.push(`/c/${conv.id}`)
+                        router.push(`/c/${chat.id}`)
                       }}
                       className={cn(
                         "group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors text-left",
@@ -316,7 +319,7 @@ export function SidebarClient({ profile, conversations }: SidebarClientProps) {
                       )}
                     >
                       <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-foreground" />
-                      <span className="flex-1 truncate">{conv.title}</span>
+                      <span className="flex-1 truncate">{chat.title}</span>
                     </button>
                   )
                 })
@@ -324,14 +327,14 @@ export function SidebarClient({ profile, conversations }: SidebarClientProps) {
             </div>
           ) : (
             <div className="flex flex-col items-center space-y-1">
-              {conversations.slice(0, 8).map((conv) => {
-                const isActive = pathname === `/c/${conv.id}`
+              {chats?.slice(0, 8).map((chat) => {
+                const isActive = pathname === `/c/${chat.id}`
                 return (
-                  <ActionTooltip key={conv.id} label={conv.title} side="right">
+                  <ActionTooltip key={chat.id} label={chat.title} side="right">
                     <button
                       onClick={() => {
                         if (isMobile) setIsExpanded(false)
-                        router.push(`/c/${conv.id}`)
+                        router.push(`/c/${chat.id}`)
                       }}
                       className={cn(
                         "flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
@@ -357,7 +360,7 @@ export function SidebarClient({ profile, conversations }: SidebarClientProps) {
                   className="group flex w-full items-center gap-2.5 rounded-xl p-1.5 hover:bg-sidebar-accent text-sidebar-foreground transition-colors text-left outline-none cursor-pointer"
                 >
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold">
-                    {profile?.avatarUrl ? ( 
+                    {profile?.avatarUrl ? (
                       <img
                         src={profile.avatarUrl}
                         alt={profile.name || "User"}
