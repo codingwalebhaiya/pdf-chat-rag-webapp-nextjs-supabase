@@ -6,26 +6,18 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next"
 import { Suspense } from "react";
-import {Toaster} from "@/components/ui/sonner"
-
-// const robotoHeading = Roboto({subsets:['latin'],variable:'--font-heading'});
-// const outfit = Outfit({subsets:['latin'],variable:'--font-sans'})
-
-// const fontMono = Geist_Mono({
-//   subsets: ["latin"],
-//   variable: "--font-mono",
-// })
+import { Toaster } from "@/components/ui/sonner"
 
 
 const robotoHeading = Roboto({
-  weight: ["400", "700"], // Roboto requires explicit weights in Next.js
+  weight: ["400", "700"],
   subsets: ["latin"],
   variable: "--font-heading",
 });
 
-const outfit = Outfit({ 
-  subsets: ["latin"], 
-  variable: "--font-sans" 
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-sans"
 });
 
 const fontMono = Geist_Mono({
