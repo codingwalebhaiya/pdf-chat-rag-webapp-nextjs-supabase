@@ -65,6 +65,10 @@ export async function updateSession(request: NextRequest) {
         }
     );
 
+    if (request.nextUrl.pathname.startsWith("/api/inngest")) {
+        return NextResponse.next();
+    }
+
     const { data } = await supabase.auth.getClaims();
 
     const user = data?.claims;
@@ -85,6 +89,7 @@ export async function updateSession(request: NextRequest) {
         url.pathname = "/";
         return NextResponse.redirect(url);
     }
+
 
     return supabaseResponse;
 }
