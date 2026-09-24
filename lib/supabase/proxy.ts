@@ -65,9 +65,9 @@ export async function updateSession(request: NextRequest) {
         }
     );
 
-    if (request.nextUrl.pathname.startsWith("/api/inngest")) {
-        return NextResponse.next();
-    }
+    // if (request.nextUrl.pathname.startsWith("/api/inngest")) {
+    //     return NextResponse.next();
+    // }
 
     const { data } = await supabase.auth.getClaims();
 
