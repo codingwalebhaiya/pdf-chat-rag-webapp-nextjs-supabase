@@ -1,3 +1,5 @@
+//api/chats/background-process
+
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { documents } from "@/lib/db/schema";
@@ -34,7 +36,7 @@ export async function POST(req: Request) {
         }
 
         // Trigger background Inngest ingestion pipeline
-        await inngest.send({
+        const { ids } = await inngest.send({
             name: "pdf/ingest.requested",
             data: {
                 documentId: document.id,
@@ -51,9 +53,9 @@ export async function POST(req: Request) {
             message: "Background ingestion pipeline initiated",
             documentId: document.id,
             chatId,
+            eventIds: ids
         });
     } catch (error: any) {
-        console.error("Error in /api/chats/background-process:", error);
         return NextResponse.json(
             { error: error?.message || "Internal server error" },
             { status: 500 }

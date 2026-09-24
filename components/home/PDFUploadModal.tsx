@@ -34,10 +34,9 @@ export function PDFUploadModal({ isOpen, onClose }: PDFUploadModalProps) {
       const toastId = toast.loading("Preparing upload...");
 
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
 
         // 1. Request signed upload URL and create chat/document metadata
-        const newChatRes = await fetch(`${baseUrl}/api/chats/new-chat`, {
+        const newChatRes = await fetch("/api/chats/new-chat", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -72,7 +71,7 @@ export function PDFUploadModal({ isOpen, onClose }: PDFUploadModalProps) {
         // 3. Trigger background RAG ingestion pipeline
         toast.loading("Starting RAG ingestion in background...", { id: toastId });
 
-        const bgRes = await fetch(`${baseUrl}/api/chats/background-process`, {
+        const bgRes = await fetch("/api/chats/background-process", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

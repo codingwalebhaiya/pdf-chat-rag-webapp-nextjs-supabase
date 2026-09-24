@@ -86,8 +86,8 @@ export function ChatInterface({
     setIsSending(true);
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
-      const res = await fetch(`${baseUrl}/api/chats/query`, {
+
+      const res = await fetch("/api/chats/query", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -257,8 +257,8 @@ export function ChatInterface({
               isProcessing
                 ? "Processing document... Chat input locked"
                 : isFailed
-                ? "Document indexing failed"
-                : "Ask anything about this PDF..."
+                  ? "Document indexing failed"
+                  : "Ask anything about this PDF..."
             }
             className={cn(
               "flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-border/50 bg-background/80 focus:outline-hidden focus:ring-2 focus:ring-primary/40 transition-all",
