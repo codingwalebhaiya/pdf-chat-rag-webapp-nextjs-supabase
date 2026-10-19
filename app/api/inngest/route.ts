@@ -1,12 +1,13 @@
 // app/api/inngest/route.ts
-import { serve } from "inngest/next";
-import { inngest } from "@/lib/inngest/inngest-client";
-import { ingestPdf } from "@/lib/inngest/functions/ingest-pdf";
+import { serve } from "inngest/next"
+import { inngest } from "@/lib/inngest/inngest-client"
+import { ingestPdf } from "@/lib/inngest/functions/ingest-pdf"
 
-export const maxDuration = 300;
+export const maxDuration = 300
+export const runtime = "nodejs" // MUST be nodejs, not edge
+export const dynamic = "force-dynamic"
 
 export const { GET, POST, PUT } = serve({
-    client: inngest,
-    functions: [ingestPdf],
-}); 
-
+  client: inngest,
+  functions: [ingestPdf],
+})

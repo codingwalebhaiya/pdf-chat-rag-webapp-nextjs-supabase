@@ -1,6 +1,5 @@
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
-
+import { createServerClient } from "@supabase/ssr"
+import { NextResponse, type NextRequest } from "next/server"
 
 // Define protected routes
 //     const url = request.nextUrl.clone()
@@ -23,79 +22,73 @@ import { NextResponse, type NextRequest } from "next/server";
 //     }
 
 export async function updateSession(request: NextRequest) {
-    let supabaseResponse = NextResponse.next({
-        request,
-    });
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
 
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-        {
-            cookies: {
-                getAll() {
-                    return request.cookies.getAll();
-                },
+  if (request.nextUrl.pathname.startsWith("/api/inngest")) {
+    return supabaseResponse
+  }
 
-                setAll(cookiesToSet, headers) {
-                    cookiesToSet.forEach(({ name, value }) => {
-                        request.cookies.set(name, value);
-                    });
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
 
-                    supabaseResponse = NextResponse.next({
-                        request,
-                    });
+        setAll(cookiesToSet, headers) {
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value)
+          })
 
-                    cookiesToSet.forEach(
-                        ({ name, value, options }) => {
-                            supabaseResponse.cookies.set(
-                                name,
-                                value,
-                                options
-                            );
-                        }
-                    );
+          supabaseResponse = NextResponse.next({
+            request,
+          })
 
-                    Object.entries(headers).forEach(
-                        ([key, value]) => {
-                            supabaseResponse.headers.set(key, value);
-                        }
-                    );
-                },
-            },
-        }
-    );
+          cookiesToSet.forEach(({ name, value, options }) => {
+            supabaseResponse.cookies.set(name, value, options)
+          })
 
-    // if (request.nextUrl.pathname.startsWith("/api/inngest")) {
-    //     return NextResponse.next();
-    // }
-
-    const { data } = await supabase.auth.getClaims();
-
-    const user = data?.claims;
-
-    if (
-        !user &&
-        !request.nextUrl.pathname.startsWith("/signin") &&
-        !request.nextUrl.pathname.startsWith("/signup")
-    ) {
-        const url = request.nextUrl.clone();
-        url.pathname = "/signin";
-        return NextResponse.redirect(url);
+          Object.entries(headers).forEach(([key, value]) => {
+            supabaseResponse.headers.set(key, value)
+          })
+        },
+      },
     }
+  )
 
-    // If user is logged in and tries to access auth pages (signin/signup)
-    if (user && (request.nextUrl.pathname === '/signin' || request.nextUrl.pathname === '/signup')) {
-        const url = request.nextUrl.clone();
-        url.pathname = "/";
-        return NextResponse.redirect(url);
-    }
+  const { data } = await supabase.auth.getClaims()
 
+  const user = data?.claims
 
-    return supabaseResponse;
+  if (
+    !user &&
+    !request.nextUrl.pathname.startsWith("/signin") &&
+    !request.nextUrl.pathname.startsWith("/signup")
+  ) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/signin"
+    return NextResponse.redirect(url)
+  }
+
+  // If user is logged in and tries to access auth pages (signin/signup)
+  if (
+    user &&
+    (request.nextUrl.pathname === "/signin" ||
+      request.nextUrl.pathname === "/signup")
+  ) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/"
+    return NextResponse.redirect(url)
+  }
+
+  return supabaseResponse
 }
-
 
 // NOTE :- This follows the current Supabase SSR pattern:
 //  getClaims() verifies the token, and Proxy propagates refreshed cookies to both the request and response.
-//  Supabase explicitly warns against relying on getSession() in server-side protection 
+//  Supabase explicitly warns against relying on getSession() in server-side protection
 //  because it reads session information from the cookie without revalidating it
