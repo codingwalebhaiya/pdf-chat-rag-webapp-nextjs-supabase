@@ -2,8 +2,7 @@ import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai"
 
 export const embeddingModel = new GoogleGenerativeAIEmbeddings({
   apiKey: process.env.GOOGLE_GEMINI_API_KEY!,
-  // model: "gemini-embedding-001",
-  model: "gemini-embedding-2",
+  model: "gemini-embedding-001",
 })
 
 // NOTE:
