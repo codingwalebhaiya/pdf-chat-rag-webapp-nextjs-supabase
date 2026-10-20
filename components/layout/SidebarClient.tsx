@@ -45,7 +45,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-
 interface IChat {
   id: string
   userId: string
@@ -160,7 +159,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
           onClick={() => setIsExpanded(true)}
-          className="fixed top-3 left-3 z-40 flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-sidebar/95 text-sidebar-foreground shadow-sm backdrop-blur hover:bg-sidebar-accent transition-all"
+          className="fixed top-3 left-3 z-40 flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-sidebar/95 text-sidebar-foreground shadow-sm backdrop-blur transition-all hover:bg-sidebar-accent"
           aria-label="Open sidebar"
           title="Open sidebar"
         >
@@ -183,13 +182,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
       <motion.aside
         initial={false}
         animate={{
-          width: isMobile
-            ? isExpanded
-              ? 280
-              : 0
-            : isExpanded
-              ? 260
-              : 60,
+          width: isMobile ? (isExpanded ? 280 : 0) : isExpanded ? 260 : 60,
         }}
         transition={{
           type: "spring",
@@ -197,10 +190,8 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
           damping: 35,
         }}
         className={cn(
-          "relative flex h-screen flex-col border-r border-border bg-sidebar text-sidebar-foreground shrink-0 select-none overflow-hidden",
-          isMobile
-            ? "fixed inset-y-0 left-0 z-40 shadow-2xl"
-            : "z-20"
+          "relative flex h-screen shrink-0 flex-col overflow-hidden border-r border-border bg-sidebar text-sidebar-foreground select-none",
+          isMobile ? "fixed inset-y-0 left-0 z-40 shadow-2xl" : "z-20"
         )}
       >
         {/* Top Header Row */}
@@ -231,7 +222,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
               <ActionTooltip label="Close sidebar" side="bottom">
                 <button
                   onClick={toggleExpanded}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   aria-label="Close sidebar"
                 >
                   <PanelLeftClose className="h-4 w-4" />
@@ -243,16 +234,16 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
               <ActionTooltip label="Open sidebar" side="right">
                 <button
                   onClick={toggleExpanded}
-                  className="group relative flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200"
+                  className="group relative flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   aria-label="Open sidebar"
                 >
                   {/* Default State: Logo icon */}
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary transition-all duration-200 group-hover:opacity-0 group-hover:scale-75">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary transition-all duration-200 group-hover:scale-75 group-hover:opacity-0">
                     <FileText className="h-4 w-4" />
                   </div>
 
                   {/* Hover State: Open sidebar icon */}
-                  <PanelLeft className="absolute h-5 w-5 transition-all duration-200 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 text-sidebar-foreground" />
+                  <PanelLeft className="absolute h-5 w-5 scale-75 text-sidebar-foreground opacity-0 transition-all duration-200 group-hover:scale-100 group-hover:opacity-100" />
                 </button>
               </ActionTooltip>
             </div>
@@ -260,14 +251,19 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
         </div>
 
         {/* New Chat Action */}
-        <div className={cn("shrink-0", isExpanded ? "p-3" : "py-2 px-2 flex justify-center")}>
+        <div
+          className={cn(
+            "shrink-0",
+            isExpanded ? "p-3" : "flex justify-center px-2 py-2"
+          )}
+        >
           {isExpanded ? (
             <button
               onClick={() => {
                 if (isMobile) setIsExpanded(false)
                 setIsUploadModalOpen(true)
               }}
-              className="flex w-full items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+              className="flex w-full items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
             >
               <SquarePen className="h-4 w-4 shrink-0" />
               <motion.span
@@ -286,7 +282,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
                   if (isMobile) setIsExpanded(false)
                   setIsUploadModalOpen(true)
                 }}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 aria-label="New chat"
               >
                 <SquarePen className="h-4 w-4" />
@@ -297,7 +293,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
 
         {/* chats List */}
         <div className="flex-1 overflow-y-auto px-2 py-1">
-          {isExpanded ? (
+          {isExpanded && (
             <div className="space-y-0.5">
               {chats?.length === 0 ? (
                 <div className="py-8 text-center text-xs text-muted-foreground">
@@ -314,8 +310,9 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
                         router.push(`/c/${chat.id}`)
                       }}
                       className={cn(
-                        "group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors text-left",
-                        isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                        "group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                        isActive &&
+                          "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
                       )}
                     >
                       <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-foreground" />
@@ -325,41 +322,24 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
                 })
               )}
             </div>
-          ) : (
-            <div className="flex flex-col items-center space-y-1">
-              {chats?.slice(0, 8).map((chat) => {
-                const isActive = pathname === `/c/${chat.id}`
-                return (
-                  <ActionTooltip key={chat.id} label={chat.title} side="right">
-                    <button
-                      onClick={() => {
-                        if (isMobile) setIsExpanded(false)
-                        router.push(`/c/${chat.id}`)
-                      }}
-                      className={cn(
-                        "flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
-                        isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
-                      )}
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                    </button>
-                  </ActionTooltip>
-                )
-              })}
-            </div>
           )}
         </div>
 
         {/* Bottom User Footer */}
-        <div className={cn("shrink-0 border-t border-border/40", isExpanded ? "p-3" : "py-3 px-2 flex justify-center")}>
+        <div
+          className={cn(
+            "shrink-0 border-t border-border/40",
+            isExpanded ? "p-3" : "flex justify-center px-2 py-3"
+          )}
+        >
           {isExpanded ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="group flex w-full items-center gap-2.5 rounded-xl p-1.5 hover:bg-sidebar-accent text-sidebar-foreground transition-colors text-left outline-none cursor-pointer"
+                  className="group flex w-full cursor-pointer items-center gap-2.5 rounded-xl p-1.5 text-left text-sidebar-foreground transition-colors outline-none hover:bg-sidebar-accent"
                 >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                     {profile?.avatarUrl ? (
                       <img
                         src={profile.avatarUrl}
@@ -380,21 +360,21 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
                     </p>
                   </div>
 
-                  <ChevronRight className="h-4 w-4 text-muted-foreground opacity-60 group-hover:opacity-100 transition-opacity" />
+                  <ChevronRight className="h-4 w-4 text-muted-foreground opacity-60 transition-opacity group-hover:opacity-100" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 side="top"
                 align="start"
                 sideOffset={8}
-                className="w-64 rounded-2xl p-1.5 bg-sidebar/95 backdrop-blur-md border border-border shadow-2xl z-50 text-sidebar-foreground animate-in fade-in-0 zoom-in-95"
+                className="z-50 w-64 animate-in rounded-2xl border border-border bg-sidebar/95 p-1.5 text-sidebar-foreground shadow-2xl backdrop-blur-md fade-in-0 zoom-in-95"
               >
                 {/* Top: Icon and User Name */}
                 <DropdownMenuItem
                   onClick={() => setIsProfileModalOpen(true)}
-                  className="flex items-center gap-3 rounded-xl p-2 cursor-pointer hover:bg-sidebar-accent text-sidebar-foreground transition-colors"
+                  className="flex cursor-pointer items-center gap-3 rounded-xl p-2 text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
                 >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                     {profile?.avatarUrl ? (
                       <img
                         src={profile.avatarUrl}
@@ -421,7 +401,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
                 {/* Middle: Profile & Settings */}
                 <DropdownMenuItem
                   onClick={() => setIsProfileModalOpen(true)}
-                  className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium cursor-pointer hover:bg-sidebar-accent text-sidebar-foreground transition-colors"
+                  className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
                 >
                   <User className="h-4 w-4 text-muted-foreground" />
                   <span>Profile</span>
@@ -429,7 +409,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
 
                 <DropdownMenuItem
                   onClick={() => setIsSettingsModalOpen(true)}
-                  className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium cursor-pointer hover:bg-sidebar-accent text-sidebar-foreground transition-colors"
+                  className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
                 >
                   <Settings className="h-4 w-4 text-muted-foreground" />
                   <span>Settings</span>
@@ -441,7 +421,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
                 <DropdownMenuItem
                   onClick={() => setIsLogoutConfirmOpen(true)}
                   disabled={isPending}
-                  className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-destructive focus:text-destructive cursor-pointer hover:bg-destructive/10 focus:bg-destructive/10 transition-colors"
+                  className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive"
                 >
                   <LogOut className="h-4 w-4 text-destructive" />
                   <span>Log out</span>
@@ -453,7 +433,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground text-xs font-semibold hover:ring-2 hover:ring-primary/40 transition-all cursor-pointer outline-none"
+                  className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground transition-all outline-none hover:ring-2 hover:ring-primary/40"
                   aria-label={profile?.name || "User profile"}
                   title={profile?.name || "User profile"}
                 >
@@ -472,14 +452,14 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
                 side="right"
                 align="end"
                 sideOffset={14}
-                className="w-64 rounded-2xl p-1.5 bg-sidebar/95 backdrop-blur-md border border-border shadow-2xl z-50 text-sidebar-foreground animate-in fade-in-0 zoom-in-95"
+                className="z-50 w-64 animate-in rounded-2xl border border-border bg-sidebar/95 p-1.5 text-sidebar-foreground shadow-2xl backdrop-blur-md fade-in-0 zoom-in-95"
               >
                 {/* Top: Icon and User Name */}
                 <DropdownMenuItem
                   onClick={() => setIsProfileModalOpen(true)}
-                  className="flex items-center gap-3 rounded-xl p-2 cursor-pointer hover:bg-sidebar-accent text-sidebar-foreground transition-colors"
+                  className="flex cursor-pointer items-center gap-3 rounded-xl p-2 text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
                 >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                     {profile?.avatarUrl ? (
                       <img
                         src={profile.avatarUrl}
@@ -506,7 +486,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
                 {/* Middle: Profile & Settings */}
                 <DropdownMenuItem
                   onClick={() => setIsProfileModalOpen(true)}
-                  className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium cursor-pointer hover:bg-sidebar-accent text-sidebar-foreground transition-colors"
+                  className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
                 >
                   <User className="h-4 w-4 text-muted-foreground" />
                   <span>Profile</span>
@@ -514,7 +494,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
 
                 <DropdownMenuItem
                   onClick={() => setIsSettingsModalOpen(true)}
-                  className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium cursor-pointer hover:bg-sidebar-accent text-sidebar-foreground transition-colors"
+                  className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
                 >
                   <Settings className="h-4 w-4 text-muted-foreground" />
                   <span>Settings</span>
@@ -526,7 +506,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
                 <DropdownMenuItem
                   onClick={() => setIsLogoutConfirmOpen(true)}
                   disabled={isPending}
-                  className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-destructive focus:text-destructive cursor-pointer hover:bg-destructive/10 focus:bg-destructive/10 transition-colors"
+                  className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive"
                 >
                   <LogOut className="h-4 w-4 text-destructive" />
                   <span>Log out</span>
@@ -547,13 +527,11 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Profile</DialogTitle>
-            <DialogDescription>
-              Your personal account details
-            </DialogDescription>
+            <DialogDescription>Your personal account details</DialogDescription>
           </DialogHeader>
 
           <div className="flex flex-col items-center gap-4 py-4">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary text-xl font-bold ring-4 ring-primary/20">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-xl font-bold text-primary ring-4 ring-primary/20">
               {profile?.avatarUrl ? (
                 <img
                   src={profile.avatarUrl}
@@ -569,9 +547,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
               <h3 className="text-base font-semibold text-foreground">
                 {profile?.name || "User"}
               </h3>
-              <p className="text-sm text-muted-foreground">
-                {profile?.email}
-              </p>
+              <p className="text-sm text-muted-foreground">{profile?.email}</p>
             </div>
 
             <div className="w-full space-y-2 rounded-xl border border-border/60 bg-muted/30 p-3 text-xs">
@@ -579,9 +555,11 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
                 <span className="text-muted-foreground">Plan</span>
                 <span className="font-medium text-primary">Free Tier</span>
               </div>
-              <div className="flex justify-between py-1 border-t border-border/40">
+              <div className="flex justify-between border-t border-border/40 py-1">
                 <span className="text-muted-foreground">Account ID</span>
-                <span className="font-mono text-muted-foreground">{profile?.id?.slice(0, 8) || "N/A"}...</span>
+                <span className="font-mono text-muted-foreground">
+                  {profile?.id?.slice(0, 8) || "N/A"}...
+                </span>
               </div>
             </div>
           </div>
@@ -600,8 +578,10 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
 
           <div className="space-y-4 py-3">
             <div>
-              <label className="text-sm font-medium text-foreground">Appearance</label>
-              <p className="text-xs text-muted-foreground mb-3">
+              <label className="text-sm font-medium text-foreground">
+                Appearance
+              </label>
+              <p className="mb-3 text-xs text-muted-foreground">
                 Customize the theme of the application.
               </p>
               <div className="grid grid-cols-3 gap-2">
@@ -611,10 +591,10 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
                     type="button"
                     onClick={() => setTheme(mode)}
                     className={cn(
-                      "flex items-center justify-center rounded-lg border py-2 text-xs font-medium capitalize transition-colors cursor-pointer",
+                      "flex cursor-pointer items-center justify-center rounded-lg border py-2 text-xs font-medium capitalize transition-colors",
                       (isMounted ? theme === mode : mode === "system")
-                        ? "border-primary bg-primary/10 text-primary font-semibold"
-                        : "border-border hover:bg-muted text-muted-foreground"
+                        ? "border-primary bg-primary/10 font-semibold text-primary"
+                        : "border-border text-muted-foreground hover:bg-muted"
                     )}
                   >
                     {mode}
@@ -637,13 +617,14 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
               Are you sure you want to log out?
             </DialogTitle>
             <DialogDescription className="text-center text-xs sm:text-sm">
-              You will need to sign in again to access your conversations and documents.
+              You will need to sign in again to access your conversations and
+              documents.
             </DialogDescription>
           </DialogHeader>
 
           {/* User Profile Info Card */}
           <div className="my-2 flex items-center gap-3 rounded-xl border border-border/70 bg-muted/40 p-3.5">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold ring-2 ring-primary/20">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary ring-2 ring-primary/20">
               {profile?.avatarUrl ? (
                 <img
                   src={profile.avatarUrl}
@@ -680,7 +661,7 @@ export function SidebarClient({ profile, chats }: SidebarClientProps) {
               variant="destructive"
               onClick={handleLogout}
               disabled={isPending}
-              className="gap-2 cursor-pointer"
+              className="cursor-pointer gap-2"
             >
               <LogOut className={cn("h-4 w-4", isPending && "animate-spin")} />
               {isPending ? "Logging out..." : "Log out"}
