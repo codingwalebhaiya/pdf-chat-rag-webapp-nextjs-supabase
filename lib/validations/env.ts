@@ -10,6 +10,8 @@ const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().trim().min(1),
   SUPABASE_SECRET_KEY: z.string().trim().min(1),
+  INNGEST_SIGNING_KEY: z.string().trim().min(1),
+  INNGEST_EVENT_KEY: z.string().trim().min(1),
 
   // optional - give default
   NODE_ENV: z
