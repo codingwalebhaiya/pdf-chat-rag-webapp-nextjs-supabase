@@ -1,62 +1,59 @@
-import {  type NextRequest } from 'next/server'
-import { updateSession } from './lib/supabase/proxy';
+import { type NextRequest } from "next/server"
+import { updateSession } from "./lib/supabase/proxy"
 
 export default async function proxy(request: NextRequest) {
-    //     let supabaseResponse = NextResponse.next({
-    //         request,
-    //     })
-    //     const supabase = await createServer();
+  //     let supabaseResponse = NextResponse.next({
+  //         request,
+  //     })
+  //     const supabase = await createServer();
 
-    //     // Refresh session if expired - required for Server Components
-    //     const {
-    //         data: { user },
-    //     } = await supabase.auth.getUser()
+  //     // Refresh session if expired - required for Server Components
+  //     const {
+  //         data: { user },
+  //     } = await supabase.auth.getUser()
 
-    //     // Define protected routes
-    //     const url = request.nextUrl.clone()
-    //     const isProtectedRoute = url.pathname === '/' || url.pathname.startsWith('/c/')
+  //     // Define protected routes
+  //     const url = request.nextUrl.clone()
+  //     const isProtectedRoute = url.pathname === '/' || url.pathname.startsWith('/c/')
 
-    //     // IMPORTANT: DO NOT run code between createServerClient and
-    //     // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-    //     // issues with users being randomly logged out.
+  //     // IMPORTANT: DO NOT run code between createServerClient and
+  //     // supabase.auth.getUser(). A simple mistake could make it very hard to debug
+  //     // issues with users being randomly logged out.
 
-    //     // If no user and trying to access protected route → redirect to login
-    //     if (!user && isProtectedRoute) {
-    //         const redirectUrl = new URL('/signin', request.url)
-    //         // redirectUrl.searchParams.set('redirectedFrom', url.pathname)
-    //         return NextResponse.redirect(redirectUrl)
-    //     }
+  //     // If no user and trying to access protected route → redirect to login
+  //     if (!user && isProtectedRoute) {
+  //         const redirectUrl = new URL('/signin', request.url)
+  //         // redirectUrl.searchParams.set('redirectedFrom', url.pathname)
+  //         return NextResponse.redirect(redirectUrl)
+  //     }
 
-    //     // If user is logged in and tries to access auth pages (signin/signup)
-    //     if (user && (url.pathname === '/signin' || url.pathname === '/signup')) {
-    //         return NextResponse.redirect(new URL('/', request.url))
-    //     }
+  //     // If user is logged in and tries to access auth pages (signin/signup)
+  //     if (user && (url.pathname === '/signin' || url.pathname === '/signup')) {
+  //         return NextResponse.redirect(new URL('/', request.url))
+  //     }
 
-    //     return supabaseResponse
-    // }
-//     if (request.nextUrl.pathname.startsWith("/api/inngest")) {
-//     return NextResponse.next()
-//   }
+  //     return supabaseResponse
+  // }
+  //     if (request.nextUrl.pathname.startsWith("/api/inngest")) {
+  //     return NextResponse.next()
+  //   }
 
-    return await updateSession(request);
-
+  return await updateSession(request)
 }
 
 export const config = {
-
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder files
-     * - api routes (if you have public APIs)
-     */
-    matcher: [
-        '/((?!api/inngest|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-    ]
+  /*
+   * Match all request paths except:
+   * - _next/static (static files)
+   * - _next/image (image optimization files)
+   * - favicon.ico (favicon file)
+   * - public folder files
+   * - api routes (if you have public APIs)
+   */
+  matcher: [
+    "/((?!api/inngest|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 }
-
 
 // complete flow for server component with supabase auth -:
 // Request
@@ -69,14 +66,13 @@ export const config = {
 //    ↓
 // continue / redirect
 
-
 // why proxy exists:
 // imagine the access token is expired, and you are on a protected route,
 // without this proxy, you will be redirected to the login page.
 // with this proxy, you will be able to refresh the access token and continue.
 // Proxy is the only way to handle the session-refresh mechanism in SSR.
 
-//for example this flow - 
+//for example this flow -
 // User
 //  │
 //  │ GET /dashboard
@@ -99,7 +95,6 @@ export const config = {
 //       ▼
 // Continue to dashboard
 
-
 // what is SSR ?
 // Server-Side Rendering (SSR) is a web development technique
 //  where the initial HTML page is generated on the server before being sent to the client's browser.
@@ -112,7 +107,6 @@ export const config = {
 // 4. returns response
 // 5. server renders page
 // 6. response sent to client
-
 
 // what is CSR ? (Client Side Rendering)
 // Client-Side Rendering (CSR) is a web development technique
@@ -153,8 +147,7 @@ export const config = {
 // 3. updates session/refresh token
 // 4. returns response
 // 5. server renders page
-// 6. response sent to client 
-
+// 6. response sent to client
 
 // which is better SSR or CSR or SSG or ISR ?
 // It depends on the use case.
@@ -194,8 +187,7 @@ export const config = {
 // 5. server renders page
 // 6. response sent to client
 
-
 // NOTE :-
-// Without this session-refresh mechanism, users can unexpectedly get signed out during SSR. 
-// Supabase explicitly describes Proxy as the mechanism 
+// Without this session-refresh mechanism, users can unexpectedly get signed out during SSR.
+// Supabase explicitly describes Proxy as the mechanism
 // that refreshes the Auth token and passes the refreshed cookie to the browser/server.

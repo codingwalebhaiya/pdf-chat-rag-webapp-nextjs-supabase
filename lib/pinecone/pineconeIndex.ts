@@ -1,12 +1,9 @@
-import { Pinecone } from "@pinecone-database/pinecone";
-
-if (!process.env.PINECONE_API_KEY) throw new Error("Missing PINECONE_API_KEY")
-if (!process.env.PINECONE_INDEX) throw new Error("Missing PINECONE_INDEX")
-
+import { Pinecone } from "@pinecone-database/pinecone"
+import { env } from "../validations/env"
 
 const pinecone = new Pinecone({
-    apiKey: process.env.PINECONE_API_KEY!
+  apiKey: env.PINECONE_API_KEY,
 })
 
-const index = pinecone.Index(process.env.PINECONE_INDEX!)
+const index = pinecone.Index(env.PINECONE_INDEX)
 export default index
