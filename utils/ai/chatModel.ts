@@ -7,3 +7,13 @@ const chatModel = new ChatGoogleGenerativeAI({
 })
 
 export default chatModel;
+
+
+// best balance for free tier
+//model: "gemini-2.5-flash" 
+
+// if you hit RPM limit, switch to Lite
+//model: "gemini-2.5-flash-lite" // or "gemini-3.5-flash-lite"
+
+// embeddings to replace text-embedding-3-large
+//model: "gemini-embedding-001" // 3072 dims, or 768 if you set dimensions

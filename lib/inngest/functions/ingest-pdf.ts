@@ -21,17 +21,17 @@ interface IEventData {
 export const ingestPdf = inngest.createFunction(
   {
     id: "ingest-pdf",
-    triggers:[
+    triggers: [
       {
         event: "pdf/ingest.requested",
-      }
+      },
     ],
     retries: 2, // after 2 retries it will stop,
     onFailure: async ({ error, logger }) => {
       logger.error(`Failed to ingest PDF: ${error.message}`)
     },
   },
-  async ({ event, step, logger })=> {
+  async ({ event, step, logger }) => {
     const {
       documentId,
       userId,
@@ -73,8 +73,8 @@ export const ingestPdf = inngest.createFunction(
         })
         const pages = await loader.load()
         const splitter = new RecursiveCharacterTextSplitter({
-          chunkSize: 500,
-          chunkOverlap: 100,
+          chunkSize: 1000,
+          chunkOverlap: 200,
           separators: ["\n\n", "\n", ".", " "], // splitting by double newline, then single newline, then dot, then space
         })
 
@@ -116,6 +116,7 @@ export const ingestPdf = inngest.createFunction(
         throw new Error("No chunks found")
       }
 
+
       // store in pinecone
       // usecase of fromDocuments - only in the time of chunk and upsert to pinecone
       await PineconeStore.fromDocuments(chunksWithMetadata, embeddingModel, {
@@ -123,7 +124,7 @@ export const ingestPdf = inngest.createFunction(
         pineconeIndex,
       })
     })
-    logger.info(`Chunks upserted to pinecone`)
+   // logger.info(`Chunks upserted to pinecone`)
 
     // step 4: Update status to ready
     await step.run("update-doc-status-to-complete", async () => {
@@ -134,7 +135,7 @@ export const ingestPdf = inngest.createFunction(
         })
         .where(eq(documents.id, documentId))
     })
-    logger.info(`documentId ${documentId} status updated to complete`)
+   logger.info(`documentId ${documentId} status updated to complete`)
 
     return {
       success: true,
